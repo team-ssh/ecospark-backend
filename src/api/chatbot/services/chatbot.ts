@@ -173,7 +173,7 @@ export default () => ({
   },
 
   async extractProductsFromResponse(response: string) {
-    const productIdHints = response.matchAll(/\s?\(product_id:\s*(?<product_id>\d+)\)/g);
+    const productIdHints = response.matchAll(/\s?\(product[_ ]id:\s*(?<product_id>\d+)\)/g);
     const productIds: number[] = [];
     for (const match of productIdHints) {
       const productId = match.groups!.product_id;
