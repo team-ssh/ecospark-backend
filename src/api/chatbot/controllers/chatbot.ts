@@ -46,13 +46,10 @@ export default {
         message,
         chatHistory,
       );
-      ctx.body = {
-        message: response,
-      };
-      return;
+      ctx.body = await chatbotService.extractProductsFromResponse(response);
     } catch (e) {
       strapi.log.error(e);
-      return ctx.internalServerError("I can't answer to that query right now.");
+      return ctx.internalServerError('I can\'t answer to that query right now.');
     }
   },
 };

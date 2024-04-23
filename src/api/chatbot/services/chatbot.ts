@@ -2,11 +2,21 @@
  * chatbot service
  */
 
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import {
+  ChatGoogleGenerativeAI,
+  GoogleGenerativeAIEmbeddings,
+} from '@langchain/google-genai';
 import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
-import { ConversationalRetrievalQAChain, LLMChain, loadQAChain } from 'langchain/chains';
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts';
+import {
+  ConversationalRetrievalQAChain,
+  LLMChain,
+  loadQAChain,
+} from 'langchain/chains';
 import { JsonArray } from 'type-fest';
 import { ChatVertexAI } from '@langchain/google-vertexai';
 import { Document } from '@langchain/core/documents';
@@ -28,44 +38,47 @@ async function populateVectorStore() {
     apiKey: process.env.GOOGLE_GEMINI_API_KEY,
   });
 
-  const productDocuments = products.map(p => {
-    const flatProduct = {
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      brand: p.brand.name,
-      category: p.category.name,
-      price: `${p.price} USD`,
-    };
-    for (const spec of p.specifications) {
-      if (typeof spec.value === 'boolean') {
-        flatProduct[spec.name] = spec.value ? 'Yes' : 'No';
-      } else {
-        flatProduct[spec.name] = spec.value;
+  const productDocuments = products
+    .map((p) => {
+      const flatProduct = {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        brand: p.brand.name,
+        category: p.category.name,
+        price: `${p.price} USD`,
+      };
+      for (const spec of p.specifications) {
+        if (typeof spec.value === 'boolean') {
+          flatProduct[spec.name] = spec.value ? 'Yes' : 'No';
+        } else {
+          flatProduct[spec.name] = spec.value;
+        }
       }
-    }
-    for (const eco of p.eco_data) {
-      if (eco.name === 'recycled_materials') {
-        flatProduct[eco.name] = (eco.value as JsonArray).join(', ');
-      } else if (typeof eco.value === 'boolean') {
-        flatProduct[eco.name] = eco.value ? 'Yes' : 'No';
-      } else if(eco.name === 'carbon_footprint') {
-        flatProduct[eco.name] = `${eco.value} kg CO2`;
+      for (const eco of p.eco_data) {
+        if (eco.name === 'recycled_materials') {
+          flatProduct[eco.name] = (eco.value as JsonArray).join(', ');
+        } else if (typeof eco.value === 'boolean') {
+          flatProduct[eco.name] = eco.value ? 'Yes' : 'No';
+        } else if (eco.name === 'carbon_footprint') {
+          flatProduct[eco.name] = `${eco.value} kg CO2`;
+        } else {
+          flatProduct[eco.name] = eco.value;
+        }
       }
-      else {
-        flatProduct[eco.name] = eco.value;
-      }
-    }
-    return flatProduct;
-  }).map(p => {
-    const pageContent = Object.entries(p).map(([key, value]) => `${key}: ${value}`).join('\n');
-    return new Document({
-      pageContent,
-      metadata: {
-        source: `product[${p.id}]`,
-      },
+      return flatProduct;
+    })
+    .map((p) => {
+      const pageContent = Object.entries(p)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+      return new Document({
+        pageContent,
+        metadata: {
+          source: `product[${p.id}]`,
+        },
+      });
     });
-  });
 
   return await MemoryVectorStore.fromDocuments(productDocuments, embeddings);
 }
@@ -108,7 +121,8 @@ Context:
 Question:
 {question}
 
-Helpful Answer:`);
+Helpful Answer:`,
+  );
   const doc_chain = loadQAChain(createGeminiLLM(), {
     prompt: qa_prompt,
     type: 'stuff',
@@ -126,6 +140,17 @@ Helpful Answer:`);
   });
 }
 
+async function getProductsByIds(ids: number[]) {
+  return await strapi.entityService.findMany('api::product.product', {
+    filters: {
+      id: {
+        $in: ids,
+      },
+    },
+    populate: '*',
+  });
+}
+
 export default () => ({
   async processMessage(
     clientId: string,
@@ -135,14 +160,30 @@ export default () => ({
       role: string;
     }>,
   ) {
-    const history = chatHistory.length === 0 ? [
-      new AIMessage('Hello! Which product are you looking for today?'),
-    ] : chatHistory.map((record) => {
-      return record.role === 'user'
-        ? new HumanMessage(record.message)
-        : new AIMessage(record.message);
-    });
+    const history =
+      chatHistory.length === 0
+        ? [new AIMessage('Hello! Which product are you looking for today?')]
+        : chatHistory.map((record) => {
+          return record.role === 'user'
+            ? new HumanMessage(record.message)
+            : new AIMessage(record.message);
+        });
     const response = await answerFromVectorStore(message, history);
     return response.text;
+  },
+
+  async extractProductsFromResponse(response: string) {
+    const productIdHints = response.matchAll(/\s?\(product_id:\s*(?<product_id>\d+)\)/g);
+    const productIds: number[] = [];
+    for (const match of productIdHints) {
+      const productId = match.groups!.product_id;
+      // replace that matched string with empty string
+      response = response.replace(match[0], '');
+      productIds.push(parseInt(productId));
+    }
+    const uniqueProductIds = [...new Set(productIds)];
+    const products = await getProductsByIds(uniqueProductIds);
+
+    return { message: response, products };
   },
 });

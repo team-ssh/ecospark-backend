@@ -815,6 +815,7 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'oneToOne',
       'api::product-category.product-category'
     >;
+    cover_image: Attribute.Media;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
