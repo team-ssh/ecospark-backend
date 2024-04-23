@@ -56,7 +56,6 @@ async function populateVectorStore() {
         flatProduct[eco.name] = eco.value;
       }
     }
-    console.log(flatProduct);
     return flatProduct;
   }).map(p => {
     const pageContent = Object.entries(p).map(([key, value]) => `${key}: ${value}`).join('\n');
