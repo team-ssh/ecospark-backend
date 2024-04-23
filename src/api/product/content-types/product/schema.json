@@ -44,11 +44,7 @@
       "target": "api::product-category.product-category"
     },
     "cover_image": {
-      "allowedTypes": [
-        "images"
-      ],
-      "type": "media",
-      "multiple": false
+      "type": "string"
     }
   }
 }

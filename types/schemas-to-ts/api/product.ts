@@ -4,12 +4,10 @@ import { ProductSpecification } from '../components/product/ProductSpecification
 import { EcoData } from '../components/product/EcoData';
 import { ProductBrand } from './product-brand';
 import { ProductCategory } from './product-category';
-import { Media } from '../common/Media';
 import { ProductSpecification_Plain } from '../components/product/ProductSpecification';
 import { EcoData_Plain } from '../components/product/EcoData';
 import { ProductBrand_Plain } from './product-brand';
 import { ProductCategory_Plain } from './product-category';
-import { Media_Plain } from '../common/Media';
 import { ProductSpecification_NoRelations } from '../components/product/ProductSpecification';
 import { EcoData_NoRelations } from '../components/product/EcoData';
 import { AdminPanelRelationPropertyModification } from '../common/AdminPanelRelationPropertyModification';
@@ -27,7 +25,7 @@ export interface Product {
     price: number;
     brand?: { data: ProductBrand };
     category?: { data: ProductCategory };
-    cover_image?: { data: Media };
+    cover_image?: string;
   };
 }
 export interface Product_Plain {
@@ -42,7 +40,7 @@ export interface Product_Plain {
   price: number;
   brand?: ProductBrand_Plain;
   category?: ProductCategory_Plain;
-  cover_image?: Media_Plain;
+  cover_image?: string;
 }
 
 export interface Product_NoRelations {
@@ -57,7 +55,7 @@ export interface Product_NoRelations {
   price: number;
   brand?: number;
   category?: number;
-  cover_image?: number;
+  cover_image?: string;
 }
 
 export interface Product_AdminPanelLifeCycle {
@@ -72,5 +70,5 @@ export interface Product_AdminPanelLifeCycle {
   price: number;
   brand?: AdminPanelRelationPropertyModification<ProductBrand_Plain>;
   category?: AdminPanelRelationPropertyModification<ProductCategory_Plain>;
-  cover_image?: AdminPanelRelationPropertyModification<Media_Plain>;
+  cover_image?: string;
 }

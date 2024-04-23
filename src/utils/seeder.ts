@@ -4,6 +4,19 @@ import { ProductBrand_Plain } from '../../types/schemas-to-ts/api/product-brand'
 import { Product_Plain } from '../../types/schemas-to-ts/api/product';
 import { ProductSpecification_Plain } from '../../types/schemas-to-ts/components/product/ProductSpecification';
 import { EcoData_Plain } from '../../types/schemas-to-ts/components/product/EcoData';
+import fs from 'node:fs';
+import mime from 'mime-types';
+
+const categories = fs.readdirSync('./public/dummy-images');
+const imageMap = {};
+
+for (const category of categories) {
+  const images = fs.readdirSync(`./public/dummy-images/${category}`);
+  for (const image of images) {
+    imageMap[category] = imageMap[category] || [];
+    imageMap[category].push(`dummy-images/${category}/${image}`);
+  }
+}
 
 async function seedProductCategories(strapi: Strapi) {
   const itemsCount = await strapi
@@ -244,6 +257,7 @@ async function seedEcoFriendlyTVs(strapi: Strapi) {
         updatedAt: date,
         publishedAt: date,
         category: category.id,
+        cover_image: faker.helpers.arrayElement(imageMap['tvs'])
       });
     }
   }
@@ -311,6 +325,7 @@ async function seedNonEcoFriendlyTVs(strapi: Strapi) {
         updatedAt: date,
         publishedAt: date,
         category: category.id,
+        cover_image: faker.helpers.arrayElement(imageMap['tvs'])
       };
 
       await strapi.entityService.create('api::product.product', {
@@ -371,7 +386,7 @@ async function seedWashingMachines(strapi: Strapi) {
           name: 'carbon_footprint',
           // in kg of CO2
           value: faker.number.float({ min: 0.1, max: 5, multipleOf: 0.1 }),
-        }
+        },
       ];
 
       const productData: Omit<Product_Plain, 'brand' | 'id'> & {
@@ -418,6 +433,7 @@ async function seedWashingMachines(strapi: Strapi) {
         updatedAt: date,
         publishedAt: date,
         category: category.id,
+        cover_image: faker.helpers.arrayElement(imageMap['washing-machines'])
       };
 
       await strapi.entityService.create('api::product.product', {
@@ -480,7 +496,7 @@ async function seedRandomLightingProducts(strapi: Strapi) {
               name: 'carbon_footprint',
               // in kg of CO2
               value: faker.number.float({ min: 5, max: 8, multipleOf: 0.1 }),
-            }
+            },
           ] :
           [
             {
@@ -507,7 +523,7 @@ async function seedRandomLightingProducts(strapi: Strapi) {
               name: 'carbon_footprint',
               // in kg of CO2
               value: faker.number.float({ min: 0.1, max: 5, multipleOf: 0.1 }),
-            }
+            },
           ];
 
       const productData: Omit<Product_Plain, 'brand' | 'id'> & {
@@ -550,6 +566,7 @@ async function seedRandomLightingProducts(strapi: Strapi) {
         updatedAt: date,
         publishedAt: date,
         category: category.id,
+        cover_image: faker.helpers.arrayElement(imageMap['lighting'])
       };
 
       await strapi.entityService.create('api::product.product', {
@@ -606,7 +623,7 @@ async function seedRandomAudioProducts(strapi: Strapi) {
               name: 'carbon_footprint',
               // in kg of CO2
               value: faker.number.float({ min: 5, max: 8, multipleOf: 0.1 }),
-            }
+            },
           ] :
           [
             {
@@ -632,7 +649,7 @@ async function seedRandomAudioProducts(strapi: Strapi) {
               name: 'carbon_footprint',
               // in kg of CO2
               value: faker.number.float({ min: 0.1, max: 5, multipleOf: 0.1 }),
-            }
+            },
           ];
 
       const productData: Omit<Product_Plain, 'brand' | 'id'> & {
@@ -678,6 +695,7 @@ async function seedRandomAudioProducts(strapi: Strapi) {
         updatedAt: date,
         publishedAt: date,
         category: category.id,
+        cover_image: faker.helpers.arrayElement(imageMap['audio'])
       };
 
       await strapi.entityService.create('api::product.product', {
