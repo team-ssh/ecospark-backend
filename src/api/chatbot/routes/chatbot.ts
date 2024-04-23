@@ -10,5 +10,10 @@ export default {
       path: '/chatbot',
       handler: 'chatbot.helloWorld',
     },
+    {
+      method: 'POST',
+      path: '/chatbot/seed',
+      handler: 'chatbot.seedData',
+    }
   ],
 };

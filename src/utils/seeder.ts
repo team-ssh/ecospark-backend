@@ -702,11 +702,9 @@ async function seedRandomProductData(strapi: Strapi) {
 }
 
 export default async function seedData(strapi: Strapi) {
-  if (process.env.SEED_DATA !== 'true') {
-    return;
-  }
   faker.seed(123456);
   await seedProductCategories(strapi);
   await seedProductBrands(strapi);
   await seedRandomProductData(strapi);
+  strapi.log.info('Product data seeded successfully');
 }

@@ -1,5 +1,4 @@
 import { Strapi } from '@strapi/strapi';
-import seedData from './utils/seeder';
 
 export default {
   /**
@@ -18,6 +17,5 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: Strapi }) {
-    await seedData(strapi);
   },
 };

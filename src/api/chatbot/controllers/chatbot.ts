@@ -3,6 +3,7 @@
  */
 import { Context } from 'koa';
 import { array, assert, is, object, string } from 'superstruct';
+import seedData from '../../../utils/seeder';
 
 export default {
   helloWorld: async (ctx: any) => {
@@ -10,6 +11,13 @@ export default {
       ctx.body = {
         message: 'Hello World',
       };
+    } catch (err) {
+      ctx.body = err;
+    }
+  },
+  seedData: async (ctx: any) => {
+    try {
+      await seedData(strapi);
     } catch (err) {
       ctx.body = err;
     }
