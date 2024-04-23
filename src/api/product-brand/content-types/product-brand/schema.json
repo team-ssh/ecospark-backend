@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_brands",
+  "info": {
+    "singularName": "product-brand",
+    "pluralName": "product-brands",
+    "displayName": "Product Brand"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}
